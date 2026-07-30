@@ -1,53 +1,72 @@
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-)
+import json
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-from config import BOT_TOKEN
-from handlers import start, handle_buttons
-from admin import (
-    admin,
-    setfree,
-    setvip,
-    setresult,
-    addvip,
-    removevip,
-    broadcast,
-)
+TOKEN = "PUT_YOUR_BOT_TOKEN_HERE"
+
+def load_database():
+    with open("database.json", "r") as file:
+        return json.load(file)
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("⚽ Today's Predictions", callback_data="today")],
+        [InlineKeyboardButton("🔥 VIP Predictions", callback_data="vip")],
+        [InlineKeyboardButton("📊 Results", callback_data="results")],
+        [InlineKeyboardButton("👤 My Account", callback_data="account")],
+        [InlineKeyboardButton("ℹ️ About Bot", callback_data="about")]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        "⚽ Welcome to Football Prediction Bot\n\nChoose an option below:",
+        reply_markup=reply_markup
+    )
+
+
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    db = load_database()
+
+    if query.data == "today":
+        predictions = db.get("today_predictions", "No predictions available yet.")
+        await query.edit_message_text(
+            f"⚽ Today's Predictions:\n\n{predictions}"
+        )
+
+    elif query.data == "vip":
+        vip = db.get("vip_predictions", "VIP predictions are locked.")
+        await query.edit_message_text(
+            f"🔥 VIP Predictions:\n\n{vip}"
+        )
+
+    elif query.data == "results":
+        results = db.get("results", "No results available.")
+        await query.edit_message_text(
+            f"📊 Results:\n\n{results}"
+        )
+
+    elif query.data == "account":
+        await query.edit_message_text(
+            "👤 Account\n\nYour profile will appear here."
+        )
+
+    elif query.data == "about":
+        await query.edit_message_text(
+            "ℹ️ Football Prediction Bot\n\nDaily football tips and analysis."
+        )
 
 
 def main():
-    if not BOT_TOKEN:
-        raise ValueError(
-            "BOT_TOKEN is missing. Set it in Railway Variables."
-        )
+    app = Application.builder().token(TOKEN).build()
 
-    app = Application.builder().token(BOT_TOKEN).build()
-
-    # User commands
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button))
 
-    # Admin commands
-    app.add_handler(CommandHandler("admin", admin))
-    app.add_handler(CommandHandler("setfree", setfree))
-    app.add_handler(CommandHandler("setvip", setvip))
-    app.add_handler(CommandHandler("setresult", setresult))
-    app.add_handler(CommandHandler("addvip", addvip))
-    app.add_handler(CommandHandler("removevip", removevip))
-    app.add_handler(CommandHandler("broadcast", broadcast))
-
-    # Menu buttons
-    app.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            handle_buttons,
-        )
-    )
-
-    print("✅ Sport Prediction Bot is running...")
-
+    print("Bot is running...")
     app.run_polling()
 
 
