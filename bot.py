@@ -2,7 +2,7 @@ import json
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = "PUT_YOUR_BOT_TOKEN_HERE"
+TOKEN =8690968861:AAFn4QPIy0Y0ZEd4_Cb5esFWiTaBydRKxxE
 
 def load_database():
     with open("database.json", "r") as file:
