@@ -54,3 +54,47 @@ async def setresult(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data["results"] = text
     save_data(data)
     await update.message.reply_text("✅ Results updated.")
+async def addvip(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id):
+        return
+
+    if len(context.args) != 1:
+        await update.message.reply_text("Usage: /addvip <user_id>")
+        return
+
+    try:
+        user_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text("Invalid user ID.")
+        return
+
+    data = load_data()
+
+    if user_id not in data["vip_users"]:
+        data["vip_users"].append(user_id)
+        save_data(data)
+
+    await update.message.reply_text("✅ VIP user added.")
+
+
+async def removevip(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id):
+        return
+
+    if len(context.args) != 1:
+        await update.message.reply_text("Usage: /removevip <user_id>")
+        return
+
+    try:
+        user_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text("Invalid user ID.")
+        return
+
+    data = load_data()
+
+    if user_id in data["vip_users"]:
+        data["vip_users"].remove(user_id)
+        save_data(data)
+
+    await update.message.reply_text("✅ VIP user removed.")
