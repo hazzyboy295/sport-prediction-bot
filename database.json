@@ -1,7 +1,7 @@
 {
-  "users": [],
-  "vip_users": [],
-  "free_prediction": "No free prediction available.",
-  "vip_prediction": "No VIP prediction available.",
-  "results": "No results available."
+  "today_predictions": "⚽ Team A vs Team B\nPrediction: Home Win\nOdd: 1.80",
+
+  "vip_predictions": "🔥 VIP Match\nPrediction: Over 2.5 Goals\nOdd: 2.00",
+
+  "results": "📊 No results added yet."
 }
